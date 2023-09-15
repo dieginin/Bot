@@ -22,25 +22,13 @@ async def on_ready():
         )
     )
 
-    cogs = ["commands.extras"]
+    cogs = ["commands.extras", "errors.errors"]
     for cog in cogs:
         await bot.load_extension(cog)
         print(f"cog: {cog} loaded")
     print(f'El bot "{bot.user}" está listo')
 
     print(f"Sincronizado {len(await bot.tree.sync())} comandos")
-
-
-@bot.event
-async def on_command_error(ctx, err):
-    embed = discord.Embed(title="Error", description="", color=discord.Color.dark_red())
-
-    if isinstance(err, commands.CheckFailure):
-        embed.description = f"Primero debes lanzar el comando **`/vincular`** para vincular tu perfil\nNo posees nick o tu nick no pertenece al club"
-    else:
-        raise err
-
-    await ctx.send(embed=embed, ephemeral=True)
 
 
 bot.run(f"{TOKEN_BOT}")
