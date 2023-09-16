@@ -74,7 +74,7 @@ class Mode(Enum):
 
 
 class Result(Enum):
-    EMPATE = 'draw'
+    EMPATE = "draw"
     GANADA = "victory"
     PERDIDA = "defeat"
 
@@ -86,7 +86,7 @@ class StarPlayer:
     brawler: Brawler
 
     @staticmethod
-    def from_dict(obj: Any) -> 'StarPlayer':
+    def from_dict(obj: Any) -> "StarPlayer":
         assert isinstance(obj, dict)
         tag = from_str(obj.get("tag"))
         name = from_str(obj.get("name"))
@@ -113,17 +113,23 @@ class Battle:
     star_player: Optional[StarPlayer] = None
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Battle':
+    def from_dict(obj: Any) -> "Battle":
         assert isinstance(obj, dict)
         mode = Mode(obj.get("mode"))
         type = TypeEnum(obj.get("type"))
-        teams = from_list(lambda x: from_list(StarPlayer.from_dict, x), obj.get("teams"))
+        teams = from_list(
+            lambda x: from_list(StarPlayer.from_dict, x), obj.get("teams")
+        )
         rank = from_union([from_int, from_none], obj.get("rank"))
         result = from_union([Result, from_none], obj.get("result"))
         duration = from_union([from_int, from_none], obj.get("duration"))
         trophy_change = from_union([from_int, from_none], obj.get("trophyChange"))
-        star_player = from_union([StarPlayer.from_dict, from_none], obj.get("starPlayer"))
-        return Battle(mode, type, teams, rank, result, duration, trophy_change, star_player)
+        star_player = from_union(
+            [StarPlayer.from_dict, from_none], obj.get("starPlayer")
+        )
+        return Battle(
+            mode, type, teams, rank, result, duration, trophy_change, star_player
+        )
 
 
 @dataclass
@@ -133,7 +139,7 @@ class Event:
     map: str
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Event':
+    def from_dict(obj: Any) -> "Event":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         mode = Mode(obj.get("mode"))
@@ -148,7 +154,7 @@ class BattleLog:
     battle: Battle
 
     @staticmethod
-    def from_dict(obj: Any) -> 'BattleLog':
+    def from_dict(obj: Any) -> "BattleLog":
         assert isinstance(obj, dict)
         battle_time = from_str(obj.get("battleTime"))
         event = Event.from_dict(obj.get("event"))

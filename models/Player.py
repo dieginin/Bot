@@ -46,7 +46,7 @@ class Club:
     name: str
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Club':
+    def from_dict(obj: Any) -> "Club":
         assert isinstance(obj, dict)
         tag = from_str(obj.get("tag"))
         name = from_str(obj.get("name"))
@@ -58,7 +58,7 @@ class Icon:
     id: int
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Icon':
+    def from_dict(obj: Any) -> "Icon":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         return Icon(id)
@@ -85,7 +85,7 @@ class Player:
     club: Optional[Club] = None
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Player':
+    def from_dict(obj: Any) -> "Player":
         assert isinstance(obj, dict)
         tag = from_str(obj.get("tag"))
         name = from_str(obj.get("name"))
@@ -96,7 +96,9 @@ class Player:
         highest_power_play_points = from_int(obj.get("highestPowerPlayPoints"))
         exp_level = from_int(obj.get("expLevel"))
         exp_points = from_int(obj.get("expPoints"))
-        is_qualified_from_championship_challenge = from_bool(obj.get("isQualifiedFromChampionshipChallenge"))
+        is_qualified_from_championship_challenge = from_bool(
+            obj.get("isQualifiedFromChampionshipChallenge")
+        )
         the_3_vs3_victories = from_int(obj.get("3vs3Victories"))
         solo_victories = from_int(obj.get("soloVictories"))
         duo_victories = from_int(obj.get("duoVictories"))
@@ -104,4 +106,22 @@ class Player:
         best_time_as_big_brawler = from_int(obj.get("bestTimeAsBigBrawler"))
         brawlers = from_list(Brawler.from_dict, obj.get("brawlers"))
         club = from_union([Club.from_dict, from_none], obj.get("club"))
-        return Player(tag, name, name_color, icon, trophies, highest_trophies, highest_power_play_points, exp_level, exp_points, is_qualified_from_championship_challenge, the_3_vs3_victories, solo_victories, duo_victories, best_robo_rumble_time, best_time_as_big_brawler, brawlers, club)
+        return Player(
+            tag,
+            name,
+            name_color,
+            icon,
+            trophies,
+            highest_trophies,
+            highest_power_play_points,
+            exp_level,
+            exp_points,
+            is_qualified_from_championship_challenge,
+            the_3_vs3_victories,
+            solo_victories,
+            duo_victories,
+            best_robo_rumble_time,
+            best_time_as_big_brawler,
+            brawlers,
+            club,
+        )

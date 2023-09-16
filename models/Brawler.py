@@ -40,7 +40,7 @@ class Gadget:
     name: str
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Gadget':
+    def from_dict(obj: Any) -> "Gadget":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         name = from_str(obj.get("name"))
@@ -75,7 +75,7 @@ class Gear:
     level: int
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Gear':
+    def from_dict(obj: Any) -> "Gear":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         name = GearName(obj.get("name"))
@@ -96,15 +96,33 @@ class Brawler:
     gears: Optional[List[Gear]] = None
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Brawler':
+    def from_dict(obj: Any) -> "Brawler":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         name = from_str(obj.get("name"))
-        star_powers = from_union([lambda x: from_list(Gadget.from_dict, x), from_none], obj.get("starPowers"))
-        gadgets = from_union([lambda x: from_list(Gadget.from_dict, x), from_none], obj.get("gadgets"))
+        star_powers = from_union(
+            [lambda x: from_list(Gadget.from_dict, x), from_none], obj.get("starPowers")
+        )
+        gadgets = from_union(
+            [lambda x: from_list(Gadget.from_dict, x), from_none], obj.get("gadgets")
+        )
         power = from_union([from_int, from_none], obj.get("power"))
         trophies = from_union([from_int, from_none], obj.get("trophies"))
         rank = from_union([from_int, from_none], obj.get("rank"))
-        highest_trophies = from_union([from_int, from_none], obj.get("highest_trophies"))
-        gears = from_union([lambda x: from_list(Gear.from_dict, x), from_none], obj.get("gears"))
-        return Brawler(id, name, star_powers, gadgets, power, trophies, rank, highest_trophies, gears)
+        highest_trophies = from_union(
+            [from_int, from_none], obj.get("highest_trophies")
+        )
+        gears = from_union(
+            [lambda x: from_list(Gear.from_dict, x), from_none], obj.get("gears")
+        )
+        return Brawler(
+            id,
+            name,
+            star_powers,
+            gadgets,
+            power,
+            trophies,
+            rank,
+            highest_trophies,
+            gears,
+        )
