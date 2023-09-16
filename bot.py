@@ -3,6 +3,7 @@ from colorama import Fore
 from discord.ext import commands
 
 from config import TOKEN_BOT
+from errors.errors import on_error
 from functions.cog_loader import cog_loader
 
 # Creación del bot
@@ -34,6 +35,9 @@ async def on_ready():
         + Fore.RESET
         + f" {len(await bot.tree.sync())} sincronizado"
     )
+
+
+bot.tree.on_error = on_error
 
 
 bot.run(f"{TOKEN_BOT}")
