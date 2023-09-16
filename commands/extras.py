@@ -11,7 +11,7 @@ class Extras(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="chiste", description="Te cuento un chiste")
-    async def chiste(self, interaction: discord.Interaction):  # type: ignore
+    async def chiste(self, interaction: discord.Interaction):
         joke = pyjokes.get_jokes(language="es", category="all")
         rnd = random.randint(0, len(joke) - 1)
         await interaction.response.send_message(joke[rnd])
