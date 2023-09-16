@@ -33,10 +33,10 @@ class Icon:
 
 
 class Role(Enum):
-    MEMBER = "Miembro"
-    PRESIDENT = "Presidente"
-    SENIOR = "Veterano"
-    VICE_PRESIDENT = "Vice Presidente"
+    Miembro = "member"
+    Presidente = "president"
+    Veterano = "senior"
+    Vice_Presidente = "vicePresident"
 
 
 @dataclass
@@ -60,6 +60,11 @@ class Member:
         return Member(tag, name, name_color, role, trophies, icon)
 
 
+def from_member(x: Any) -> Member:
+    assert isinstance(x, Member)
+    return x
+
+
 @dataclass
 class Club:
     tag: str
@@ -70,6 +75,8 @@ class Club:
     required_trophies: int
     trophies: int
     members: List[Member]
+    members_count: int = 0
+    president: Member | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Club":
@@ -82,6 +89,21 @@ class Club:
         required_trophies = from_int(obj.get("requiredTrophies"))
         trophies = from_int(obj.get("trophies"))
         members = from_list(Member.from_dict, obj.get("members"))
+        members_count = from_int(len(members))
+        president = from_member(
+            next(
+                (member for member in members if member.role == Role.Presidente), Member
+            )
+        )
         return Club(
-            tag, name, description, type, badge_id, required_trophies, trophies, members
+            tag,
+            name,
+            description,
+            type,
+            badge_id,
+            required_trophies,
+            trophies,
+            members,
+            members_count,
+            president,
         )
