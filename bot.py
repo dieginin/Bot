@@ -1,7 +1,9 @@
 import discord
+from colorama import Fore
 from discord.ext import commands
 
 from config import TOKEN_BOT
+from functions.cog_loader import cog_loader
 
 # Creación del bot
 bot = commands.Bot(command_prefix="$", intents=discord.Intents.all())
@@ -22,13 +24,16 @@ async def on_ready():
         )
     )
 
-    cogs = ["commands.extras", "errors.errors"]
-    for cog in cogs:
-        await bot.load_extension(cog)
-        print(f"cog: {cog} loaded")
-    print(f'El bot "{bot.user}" está listo')
+    await cog_loader(bot)
+    print(Fore.LIGHTBLUE_EX + "BOT" + Fore.RESET + f' "{bot.user}" listo')
 
-    print(f"Sincronizado {len(await bot.tree.sync())} comandos")
+    print(Fore.LIGHTGREEN_EX + "CMD" + Fore.RESET + " sincronizando")
+    print(
+        Fore.LIGHTGREEN_EX
+        + "CMD"
+        + Fore.RESET
+        + f" {len(await bot.tree.sync())} sincronizado"
+    )
 
 
 bot.run(f"{TOKEN_BOT}")
