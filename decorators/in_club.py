@@ -1,16 +1,14 @@
 import discord
 import requests
 from discord import app_commands
-from dotenv import dotenv_values
 
-settings = dotenv_values()
-brawlAPI = "https://bsproxy.royaleapi.dev/v1/"
+from config import ROYALE_API, TOKEN_API
 
 
 def in_club():
     members_data = requests.get(
-        brawlAPI + "clubs/%232JUCPV8PR",
-        headers={"Authorization": f"Bearer {settings['BRAWL_API']}"},
+        ROYALE_API + "clubs/%232JUCPV8PR",
+        headers={"Authorization": f"Bearer {TOKEN_API}"},
     ).json()["members"]
 
     def predicate(interaction: discord.Interaction):
