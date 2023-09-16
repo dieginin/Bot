@@ -2,12 +2,12 @@ import discord
 import requests
 from discord import app_commands
 
-from config import ROYALE_API, TOKEN_API
+from config import ROYALE_URL, TOKEN_API
 
 
 def in_club():
     members_data = requests.get(
-        ROYALE_API + "clubs/%232JUCPV8PR",
+        ROYALE_URL + "clubs/%232JUCPV8PR",
         headers={"Authorization": f"Bearer {TOKEN_API}"},
     ).json()["members"]
 
