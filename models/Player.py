@@ -72,7 +72,6 @@ class Player:
     icon: Icon
     trophies: int
     highest_trophies: int
-    highest_power_play_points: int
     exp_level: int
     exp_points: int
     is_qualified_from_championship_challenge: bool
@@ -82,6 +81,7 @@ class Player:
     best_robo_rumble_time: int
     best_time_as_big_brawler: int
     brawlers: List[Brawler]
+    highest_power_play_points: Optional[int] = None
     club: Optional[Club] = None
 
     @staticmethod
@@ -93,7 +93,6 @@ class Player:
         icon = Icon.from_dict(obj.get("icon"))
         trophies = from_int(obj.get("trophies"))
         highest_trophies = from_int(obj.get("highestTrophies"))
-        highest_power_play_points = from_int(obj.get("highestPowerPlayPoints"))
         exp_level = from_int(obj.get("expLevel"))
         exp_points = from_int(obj.get("expPoints"))
         is_qualified_from_championship_challenge = from_bool(
@@ -105,6 +104,9 @@ class Player:
         best_robo_rumble_time = from_int(obj.get("bestRoboRumbleTime"))
         best_time_as_big_brawler = from_int(obj.get("bestTimeAsBigBrawler"))
         brawlers = from_list(Brawler.from_dict, obj.get("brawlers"))
+        highest_power_play_points = from_union(
+            [from_int, from_none], obj.get("highestPowerPlayPoints")
+        )
         club = from_union([Club.from_dict, from_none], obj.get("club"))
         return Player(
             tag,
@@ -113,7 +115,6 @@ class Player:
             icon,
             trophies,
             highest_trophies,
-            highest_power_play_points,
             exp_level,
             exp_points,
             is_qualified_from_championship_challenge,
@@ -123,5 +124,6 @@ class Player:
             best_robo_rumble_time,
             best_time_as_big_brawler,
             brawlers,
+            highest_power_play_points,
             club,
         )

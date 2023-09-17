@@ -109,9 +109,7 @@ class Brawler:
         power = from_union([from_int, from_none], obj.get("power"))
         trophies = from_union([from_int, from_none], obj.get("trophies"))
         rank = from_union([from_int, from_none], obj.get("rank"))
-        highest_trophies = from_union(
-            [from_int, from_none], obj.get("highest_trophies")
-        )
+        highest_trophies = from_union([from_int, from_none], obj.get("highestTrophies"))
         gears = from_union(
             [lambda x: from_list(Gear.from_dict, x), from_none], obj.get("gears")
         )
