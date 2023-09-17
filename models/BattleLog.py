@@ -77,7 +77,7 @@ class Mode(Enum):
     Supervivencia_Duo = "duoShowdown"
     Supervivencia_Solo = "soloShowdown"
     Takedown = "takedown"
-    Último_Vido = "lastStand"
+    Último_en_Pie = "lastStand"
     Volleybrawl = "volleyBrawl"
     Zona_Restringida = "hotZone"
 
