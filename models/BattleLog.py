@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, List, Optional, Type, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 
 from models.Brawler import Brawler
 
 T = TypeVar("T")
-EnumT = TypeVar("EnumT", bound=Enum)
 
 
 def from_int(x: Any) -> int:
@@ -16,11 +15,6 @@ def from_int(x: Any) -> int:
 def from_str(x: Any) -> str:
     assert isinstance(x, str)
     return x
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
 
 
 def from_none(x: Any) -> Any:
@@ -37,9 +31,24 @@ def from_union(fs, x):
     assert False
 
 
-def to_enum(c: Type[EnumT], x: Any) -> EnumT:
-    assert isinstance(x, c)
-    return x.value
+def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
+    assert isinstance(x, list)
+    return [f(y) for y in x]
+
+
+@dataclass
+class StarPlayer:
+    tag: str
+    name: str
+    brawler: Brawler
+
+    @staticmethod
+    def from_dict(obj: Any) -> "StarPlayer":
+        assert isinstance(obj, dict)
+        tag = from_str(obj.get("tag"))
+        name = from_str(obj.get("name"))
+        brawler = Brawler.from_dict(obj.get("brawler"))
+        return StarPlayer(tag, name, brawler)
 
 
 class Mode(Enum):
@@ -79,21 +88,6 @@ class Result(Enum):
     PERDIDA = "defeat"
 
 
-@dataclass
-class StarPlayer:
-    tag: str
-    name: str
-    brawler: Brawler
-
-    @staticmethod
-    def from_dict(obj: Any) -> "StarPlayer":
-        assert isinstance(obj, dict)
-        tag = from_str(obj.get("tag"))
-        name = from_str(obj.get("name"))
-        brawler = Brawler.from_dict(obj.get("brawler"))
-        return StarPlayer(tag, name, brawler)
-
-
 class TypeEnum(Enum):
     Desafio = "challenge"
     Estelar_Solo = "soloRanked"
@@ -105,30 +99,47 @@ class TypeEnum(Enum):
 class Battle:
     mode: Mode
     type: TypeEnum
-    teams: List[List[StarPlayer]]
     rank: Optional[int] = None
-    result: Optional[Result] = None
-    duration: Optional[int] = 0
     trophy_change: Optional[int] = None
+    teams: Optional[List[List[StarPlayer]]] = None
+    result: Optional[Result] = None
+    duration: Optional[int] = None
     star_player: Optional[StarPlayer] = None
+    players: Optional[List[StarPlayer]] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Battle":
         assert isinstance(obj, dict)
         mode = Mode(obj.get("mode"))
         type = TypeEnum(obj.get("type"))
-        teams = from_list(
-            lambda x: from_list(StarPlayer.from_dict, x), obj.get("teams")
-        )
         rank = from_union([from_int, from_none], obj.get("rank"))
+        trophy_change = from_union([from_int, from_none], obj.get("trophyChange"))
+        teams = from_union(
+            [
+                lambda x: from_list(lambda x: from_list(StarPlayer.from_dict, x), x),
+                from_none,
+            ],
+            obj.get("teams"),
+        )
         result = from_union([Result, from_none], obj.get("result"))
         duration = from_union([from_int, from_none], obj.get("duration"))
-        trophy_change = from_union([from_int, from_none], obj.get("trophyChange"))
         star_player = from_union(
             [StarPlayer.from_dict, from_none], obj.get("starPlayer")
         )
+        players = from_union(
+            [lambda x: from_list(StarPlayer.from_dict, x), from_none],
+            obj.get("players"),
+        )
         return Battle(
-            mode, type, teams, rank, result, duration, trophy_change, star_player
+            mode,
+            type,
+            rank,
+            trophy_change,
+            teams,
+            result,
+            duration,
+            star_player,
+            players,
         )
 
 
@@ -136,14 +147,14 @@ class Battle:
 class Event:
     id: int
     mode: Mode
-    map: Optional[str] = None
+    map: str
 
     @staticmethod
     def from_dict(obj: Any) -> "Event":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         mode = Mode(obj.get("mode"))
-        map = from_union([from_str, from_none], obj.get("map"))
+        map = from_str(obj.get("map"))
         return Event(id, mode, map)
 
 
