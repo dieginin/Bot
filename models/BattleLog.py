@@ -108,7 +108,7 @@ class Battle:
     teams: List[List[StarPlayer]]
     rank: Optional[int] = None
     result: Optional[Result] = None
-    duration: Optional[int] = None
+    duration: Optional[int] = 0
     trophy_change: Optional[int] = None
     star_player: Optional[StarPlayer] = None
 
@@ -136,14 +136,14 @@ class Battle:
 class Event:
     id: int
     mode: Mode
-    map: str
+    map: Optional[str] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Event":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
         mode = Mode(obj.get("mode"))
-        map = from_str(obj.get("map"))
+        map = from_union([from_str, from_none], obj.get("map"))
         return Event(id, mode, map)
 
 
