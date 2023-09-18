@@ -96,7 +96,7 @@ class ClubCmds(commands.Cog):
 
     @app_commands.command(
         name="perfil",
-        description="Obten tus estadísticas, la de un miembro",
+        description="Obten tus estadísticas o la de un miembro",
     )
     @app_commands.describe(
         grupo_1="Grupo 1 pertenece a los primero 15",
@@ -219,7 +219,7 @@ class ClubCmds(commands.Cog):
 
                 mode = battle.mode.name.replace("_", " ")
                 mapa = traductor.translate(event.map) if event.map else None
-                tipo = battle.type.name if mapa else "Amistosa"
+                tipo = battle.type.name.replace("_", " ") if mapa else "Amistosa"
                 duration = battle.duration / 60 if battle.duration else 0
 
                 starPlayer = battle.star_player if battle.star_player else None
