@@ -154,7 +154,7 @@ class ClubCmds(commands.Cog):
             info.add_field(name=f"**{pd.name}**", value=pd.tag)
             info.add_field(
                 name="",
-                value=f"**Posición**: {role}\n**Clasificado**: {'Si' if pd.is_qualified_from_championship_challenge else 'No'}",
+                value=f"**Posición**: {role.name.replace('_',' ')}\n**Clasificado**: {'Si' if pd.is_qualified_from_championship_challenge else 'No'}",
             )
 
             bests = sorted(
