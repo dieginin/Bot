@@ -229,7 +229,7 @@ class ClubCmds(commands.Cog):
                 if i > 0:
                     title = "\n\u200B\n" + title
                 title += f"{fecha} || {result}"
-                if tipo != "Desafio" and mapa:
+                if tipo == "Normal" and mapa:
                     title += f" | Trofeos: {trophyChange}"
 
                 data += f"Modo: {mode} | Tipo: {tipo}\n"
