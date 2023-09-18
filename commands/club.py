@@ -246,6 +246,98 @@ class ClubCmds(commands.Cog):
 
             await interaction.response.send_message(embeds=[info, tops, blh])
 
+    @app_commands.command(
+        name="brawlers",
+        description="Tus mejores brawlers actuales y de trofeos más altos o los de otro miembro",
+    )
+    @app_commands.describe(
+        estatus="Seleciona si quieres ver los mejores brawlers actuales o de trofeos más altos",
+        grupo_1="Grupo 1 pertenece a los primero 15",
+        grupo_2="Grupo 2 pertenece a partir de los 15",
+    )
+    @app_commands.choices(
+        estatus=[
+            app_commands.Choice(name="Brawlers Actuales", value="act"),
+            app_commands.Choice(name="Trofeos más altos", value="tma"),
+        ],
+        grupo_1=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[:15]
+        ],
+        grupo_2=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[15:]
+        ],
+    )
+    @in_club()
+    async def brawlers(
+        self,
+        interaction: discord.Interaction,
+        estatus: Optional[app_commands.Choice[str]],
+        grupo_1: Optional[app_commands.Choice[str]],
+        grupo_2: Optional[app_commands.Choice[str]],
+    ):
+        if not estatus:
+            estatus = app_commands.Choice(name="Brawlers Actuales", value="act")
+        if not (grupo_1 or grupo_2):
+            tag, _ = get_member_info(interaction.user.nick)  # type: ignore
+            member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
+        else:
+            member = (
+                grupo_1
+                if grupo_1
+                else grupo_2
+                if grupo_2
+                else app_commands.Choice(name="", value="")
+            )
+
+        pd = Player.from_dict(
+            requests.get(
+                ROYALE_URL + f"players/%23{member.value[1:]}",
+                headers={"Authorization": f"Bearer {TOKEN_API}"},
+            ).json()
+        )
+        bws = pd.brawlers
+        bws.sort(key=lambda x: x.trophies if estatus.value == "act" else x.highest_trophies, reverse=True)  # type: ignore
+        bws_data = [
+            Brawler.from_dict(b)
+            for b in requests.get(
+                ROYALE_URL + f"brawlers",
+                headers={"Authorization": f"Bearer {TOKEN_API}"},
+            ).json()["items"]
+        ]
+
+        color = discord.Colour.from_str("#" + pd.name_color[4:])
+
+        info = discord.Embed(
+            title=member.name,
+            description=f"**TOP {estatus.name.upper()}**",
+            colour=color,
+        )
+
+        brawls = discord.Embed(colour=color)
+        for i, bw in enumerate(bws[:16]):
+            bw_data = next((br for br in bws_data if br.name == bw.name))
+            refuerzos = (
+                "\n".join([f"{gear.name.name.replace('_','')}" for gear in bw.gears])
+                if bw.gears
+                else None
+            )
+            leyenda = (
+                "**Mejores Trofeos**: "
+                if estatus.value == "act"
+                else "**Trofeos Actuales**: "
+            )
+            brawls.add_field(
+                name=f"[{bw.power}] - {bw.trophies if estatus.value == 'act' else bw.highest_trophies} || **{bw.name}**",
+                value=leyenda
+                + f"{bw.highest_trophies if estatus.value == 'act' else bw.trophies:,} [{bw.rank:2}]\n**Estelares**: {len(bw.star_powers if bw.star_powers else []):2}/{len(bw_data.star_powers if bw_data.star_powers else []):2}\n**Gadgets**: {len(bw.gadgets if bw.gadgets else []):2}/{len(bw_data.gadgets if bw_data.gadgets else []):2}\n**Refuerzos**: {len(bw.gears if bw.gears else []):2}\n{refuerzos if refuerzos else '*Sin refuerzos*'}\n\u200B",
+            )
+
+            if i % 2 == 0:
+                brawls.add_field(name="", value="")
+        await interaction.response.send_message(embeds=[info, brawls])
+
 
 async def setup(bot):
     await bot.add_cog(ClubCmds(bot))
