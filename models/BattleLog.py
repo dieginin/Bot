@@ -146,15 +146,15 @@ class Battle:
 @dataclass
 class Event:
     id: int
-    mode: Mode
-    map: str
+    mode: Optional[Mode] = None
+    map: Optional[str] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Event":
         assert isinstance(obj, dict)
         id = from_int(obj.get("id"))
-        mode = Mode(obj.get("mode"))
-        map = from_str(obj.get("map"))
+        mode = from_union([from_none, Mode], obj.get("mode"))
+        map = from_union([from_str, from_none], obj.get("map"))
         return Event(id, mode, map)
 
 
