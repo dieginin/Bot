@@ -16,8 +16,8 @@ class Extras(commands.Cog):
         rnd = random.randint(0, len(joke) - 1)
         await interaction.response.send_message(joke[rnd])
 
-    @app_commands.command(name="info", description="Información del servidor")
-    async def info(self, interaction: discord.Interaction):
+    @app_commands.command(name="ynfo", description="Información del servidor")
+    async def ynfo(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title=interaction.guild,
             description="_*Valhalla*_ es una creencia nórdica dónde se hace semejanza a la esperanza, la lucha, la creencia, la unión. El _*valhalla*_ es lo que todo vikingo deseaba, es como la gente que añora llegar al cielo.",
