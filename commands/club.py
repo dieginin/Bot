@@ -35,7 +35,7 @@ class ClubCmds(commands.Cog):
     @in_club()
     async def club(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        
+
         club = Club.from_dict(
             requests.get(
                 ROYALE_URL + "clubs/%232JUCPV8PR",
@@ -122,7 +122,7 @@ class ClubCmds(commands.Cog):
         grupo_2: Optional[app_commands.Choice[str]],
     ):
         await interaction.response.defer()
-        
+
         if not (grupo_1 or grupo_2):
             tag, _ = get_member_info(interaction.user.nick)  # type: ignore
             member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
@@ -245,6 +245,32 @@ class ClubCmds(commands.Cog):
                         else f"Duración: {duration:.2f} mins"
                     )
                 data += starPlayer if starPlayer else ""
+                data += "\n" + "-·-" * 17
+
+                player = None
+                teams = (
+                    battle.teams
+                    if battle.teams
+                    else battle.players
+                    if battle.players
+                    else []
+                )
+
+                for team in teams:
+                    for team in teams:
+                        if isinstance(team, list):
+                            player_data = next(
+                                (p for p in team if p.name == pd.name), None
+                            )
+                        else:
+                            player_data = (
+                                team if team.name == pd.name == pd.name else None
+                            )
+                        if player_data:
+                            player = f"**{player_data.name}** --> [{player_data.brawler.power}] - {player_data.brawler.trophies:,} || {player_data.brawler.name}"
+                    if player:
+                        data += f"\n{player}"
+                        break
 
                 blh.add_field(name=title, value=data, inline=False)
 
@@ -369,7 +395,7 @@ class ClubCmds(commands.Cog):
         grupo_2: Optional[app_commands.Choice[str]],
     ):
         await interaction.response.defer()
-        
+
         if not (grupo_1 or grupo_2):
             tag, _ = get_member_info(interaction.user.nick)  # type: ignore
             member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
