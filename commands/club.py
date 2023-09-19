@@ -338,6 +338,157 @@ class ClubCmds(commands.Cog):
                 brawls.add_field(name="", value="")
         await interaction.response.send_message(embeds=[info, brawls])
 
+    @app_commands.command(
+        name="historial",
+        description="Tu historial de batallas de otro miembro",
+    )
+    @app_commands.describe(
+        grupo_1="Grupo 1 pertenece a los primero 15",
+        grupo_2="Grupo 2 pertenece a partir de los 15",
+    )
+    @app_commands.choices(
+        grupo_1=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[:15]
+        ],
+        grupo_2=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[15:]
+        ],
+    )
+    @in_club()
+    async def historial(
+        self,
+        interaction: discord.Interaction,
+        grupo_1: Optional[app_commands.Choice[str]],
+        grupo_2: Optional[app_commands.Choice[str]],
+    ):
+        if not (grupo_1 or grupo_2):
+            tag, _ = get_member_info(interaction.user.nick)  # type: ignore
+            member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
+        else:
+            member = (
+                grupo_1
+                if grupo_1
+                else grupo_2
+                if grupo_2
+                else app_commands.Choice(name="", value="")
+            )
+
+        pd = Player.from_dict(
+            requests.get(
+                ROYALE_URL + f"players/%23{member.value[1:]}",
+                headers={"Authorization": f"Bearer {TOKEN_API}"},
+            ).json()
+        )
+        bl_data = requests.get(
+            ROYALE_URL + f"players/%23{member.value[1:]}/battlelog",
+            headers={"Authorization": f"Bearer {TOKEN_API}"},
+        ).json()["items"]
+        bl = [BattleLog.from_dict(bt) for bt in bl_data]
+
+        color = discord.Colour.from_str("#" + pd.name_color[4:])
+
+        info = discord.Embed(
+            title=member.name, description="**HISTORIAL DE BATALLAS**", colour=color
+        )
+
+        battles = [info]
+        for battle_data in bl[:7]:
+            title, data = "", ""
+            battle = battle_data.battle
+            event = battle_data.event
+
+            fecha = f"{battle_data.battle_time[6:8]} {calendar.month_name[int(battle_data.battle_time[4:6])]}"
+            result = battle.result.name if battle.result else f"RANGO: {battle.rank}"
+            trophyChange = battle.trophy_change if battle.trophy_change else 0
+
+            mode = battle.mode.name.replace("_", " ")
+            mapa = traductor.translate(event.map) if event.map else None
+            tipo = battle.type.name.replace("_", " ") if mapa else "Amistosa"
+            duration = battle.duration / 60 if battle.duration else 0
+
+            if result == "GANADA" or trophyChange > 0:
+                color = "#2ECC71"
+            elif result == "PERDIDA" or trophyChange < 0:
+                color = "#E74C3C"
+            elif result == "EMPATE" or trophyChange == 0:
+                color = "#FEE75C"
+            else:
+                color = "#" + pd.name_color[4:]
+
+            embed = discord.Embed(colour=discord.Colour.from_str(color))
+            starPlayer = battle.star_player if battle.star_player else None
+            if starPlayer:
+                starPlayer = f"\n★ **MVP**: __{starPlayer.name}__ - {starPlayer.brawler.name} [{starPlayer.brawler.power}]"
+
+            title += f"{fecha} || {result}"
+            if tipo == "Normal" and mapa:
+                title += f" | Trofeos: {trophyChange}"
+
+            data += f"Modo: {mode} | Tipo: {tipo}\n"
+            data += f"Mapa: {mapa}" if mapa else ""
+
+            if battle.duration:
+                data += (
+                    f" | Duración: {duration:.2f} mins"
+                    if mapa
+                    else f"Duración: {duration:.2f} mins"
+                )
+            data += starPlayer if starPlayer else ""
+            data += "\n" + "-·-" * 17
+
+            embed.add_field(name=title, value=data, inline=False)
+
+            teams = (
+                battle.teams
+                if battle.teams
+                else battle.players
+                if battle.players
+                else []
+            )
+
+            for i, team in enumerate(teams):
+                if isinstance(team, list):
+                    normal_match = False
+                    blue_team, red_team = "", ""
+                    for j, player in enumerate(team):
+                        data = f"**__{player.name}__**\n[{player.brawler.power}] - {player.brawler.trophies:,} | {player.brawler.name}\n"
+
+                        if len(team) == 2:
+                            if j == 1:
+                                blue_team += data
+                            else:
+                                red_team += data
+                        else:
+                            normal_match = True
+                            if i == 1:
+                                blue_team += data
+                            else:
+                                red_team += data
+                    if blue_team:
+                        embed.add_field(
+                            name="**》 EQUIPO AZUL**" if normal_match else "",
+                            value=blue_team,
+                        )
+                    if not normal_match:
+                        embed.add_field(name="-", value="")
+                    if red_team:
+                        embed.add_field(
+                            name="**》 EQUIPO ROJO**" if normal_match else "",
+                            value=red_team,
+                        )
+                else:
+                    embed.add_field(
+                        name="",
+                        value=f"**__{team.name}__**\n[{team.brawler.power}] - {team.brawler.trophies:,} | {team.brawler.name}",
+                    )
+                    if i % 2 == 0:
+                        embed.add_field(name="", value="")
+            battles.append(embed)
+
+        await interaction.response.send_message(embeds=battles)
+
 
 async def setup(bot):
     await bot.add_cog(ClubCmds(bot))
