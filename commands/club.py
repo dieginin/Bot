@@ -34,6 +34,8 @@ class ClubCmds(commands.Cog):
     @app_commands.command(name="club", description="Estadísticas del club")
     @in_club()
     async def club(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        
         club = Club.from_dict(
             requests.get(
                 ROYALE_URL + "clubs/%232JUCPV8PR",
@@ -92,7 +94,7 @@ class ClubCmds(commands.Cog):
         miembros.add_field(name="", value="\u200B")
         miembros.add_field(name="", value=mems2)
 
-        await interaction.response.send_message(embeds=[info, miembros])
+        await interaction.followup.send(embeds=[info, miembros])
 
     @app_commands.command(
         name="perfil",
@@ -119,6 +121,8 @@ class ClubCmds(commands.Cog):
         grupo_1: Optional[app_commands.Choice[str]],
         grupo_2: Optional[app_commands.Choice[str]],
     ):
+        await interaction.response.defer()
+        
         if not (grupo_1 or grupo_2):
             tag, _ = get_member_info(interaction.user.nick)  # type: ignore
             member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
@@ -244,7 +248,7 @@ class ClubCmds(commands.Cog):
 
                 blh.add_field(name=title, value=data, inline=False)
 
-            await interaction.response.send_message(embeds=[info, tops, blh])
+            await interaction.followup.send(embeds=[info, tops, blh])
 
     @app_commands.command(
         name="brawlers",
@@ -277,6 +281,7 @@ class ClubCmds(commands.Cog):
         grupo_1: Optional[app_commands.Choice[str]],
         grupo_2: Optional[app_commands.Choice[str]],
     ):
+        await interaction.response.defer()
         if not estatus:
             estatus = app_commands.Choice(name="Brawlers Actuales", value="act")
         if not (grupo_1 or grupo_2):
@@ -336,7 +341,7 @@ class ClubCmds(commands.Cog):
 
             if i % 2 == 0:
                 brawls.add_field(name="", value="")
-        await interaction.response.send_message(embeds=[info, brawls])
+        await interaction.followup.send(embeds=[info, brawls])
 
     @app_commands.command(
         name="historial",
@@ -363,6 +368,8 @@ class ClubCmds(commands.Cog):
         grupo_1: Optional[app_commands.Choice[str]],
         grupo_2: Optional[app_commands.Choice[str]],
     ):
+        await interaction.response.defer()
+        
         if not (grupo_1 or grupo_2):
             tag, _ = get_member_info(interaction.user.nick)  # type: ignore
             member = app_commands.Choice(name=interaction.user.nick, value=tag)  # type: ignore
@@ -487,7 +494,7 @@ class ClubCmds(commands.Cog):
                         embed.add_field(name="", value="")
             battles.append(embed)
 
-        await interaction.response.send_message(embeds=battles)
+        await interaction.followup.send(embeds=battles)
 
 
 async def setup(bot):
