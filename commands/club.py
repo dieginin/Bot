@@ -541,6 +541,41 @@ class ClubCmds(commands.Cog):
 
         await interaction.followup.send(embeds=battles)
 
+    @app_commands.command(
+        name="tag",
+        description="Obten el tag de un miembro",
+    )
+    @app_commands.describe(
+        grupo_1="Grupo 1 pertenece a los primero 15",
+        grupo_2="Grupo 2 pertenece a partir de los 15",
+    )
+    @app_commands.choices(
+        grupo_1=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[:15]
+        ],
+        grupo_2=[
+            app_commands.Choice(name=member.name, value=member.tag)
+            for member in club_members[15:]
+        ],
+    )
+    @in_club()
+    async def perfil(
+        self,
+        interaction: discord.Interaction,
+        grupo_1: Optional[app_commands.Choice[str]],
+        grupo_2: Optional[app_commands.Choice[str]],
+    ):
+        await interaction.response.defer()
+
+        if not (grupo_1 or grupo_2):
+            await interaction.followup.send("Necesitas indicar la persona")
+        else:
+            member = grupo_1 if grupo_1 else grupo_2
+            await interaction.followup.send(
+                f"El tag de {member.name} es: {member.value}"
+            )
+
 
 async def setup(bot):
     await bot.add_cog(ClubCmds(bot))
