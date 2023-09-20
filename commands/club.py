@@ -571,10 +571,14 @@ class ClubCmds(commands.Cog):
         if not (grupo_1 or grupo_2):
             await interaction.followup.send("Necesitas indicar la persona")
         else:
-            member = grupo_1 if grupo_1 else grupo_2
-            await interaction.followup.send(
-                f"El tag de {member.name} es: {member.value}"
+            member = (
+                grupo_1
+                if grupo_1
+                else grupo_2
+                if grupo_2
+                else app_commands.Choice(name="", value="")
             )
+            await interaction.followup.send(member.value)
 
 
 async def setup(bot):
