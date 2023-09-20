@@ -28,8 +28,12 @@ class Buscar(commands.Cog):
     @app_commands.command(description="Valora el perfil de otra persona")
     @app_commands.describe(tag="Intresa el tag")
     @in_club()
-    async def valorar(self, interaction: discord.Interaction, tag: str = ""):
-        if tag == "":
+    async def valorar(
+        self, interaction: discord.Interaction, tag: Optional[str] = None
+    ):
+        await interaction.response.defer()
+
+        if not tag:
             tag = get_member_tag(interaction.user.nick)  # type: ignore
 
         if tag[0] != "#":
