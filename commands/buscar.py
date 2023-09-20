@@ -44,6 +44,7 @@ class Buscar(commands.Cog):
                     color=discord.Color.dark_red(),
                 )
             )
+            return
 
         pd = Player.from_dict(pd_data.json())
         bws_data = requests.get(
@@ -143,6 +144,7 @@ class Buscar(commands.Cog):
                     color=discord.Color.dark_red(),
                 )
             )
+            return
 
         pd = Player.from_dict(pd_data.json())
         bws = pd.brawlers
@@ -206,6 +208,7 @@ class Buscar(commands.Cog):
                     color=discord.Color.dark_red(),
                 )
             )
+            return
 
         pd = Player.from_dict(pd_data.json())
         bl_data = requests.get(
