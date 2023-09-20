@@ -32,16 +32,35 @@ class ClubCmds(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="club", description="Estadísticas del club")
+    @app_commands.describe(tag="Intresa el tag")
     @in_club()
-    async def club(self, interaction: discord.Interaction):
+    async def club(self, interaction: discord.Interaction, tag: str | None = None):
         await interaction.response.defer()
-
-        club = Club.from_dict(
-            requests.get(
-                ROYALE_URL + "clubs/%232JUCPV8PR",
+        if tag:
+            if tag[0] == "#":
+                tag = tag[1:]
+            club_data = requests.get(
+                ROYALE_URL + f"clubs/%23{tag}",
                 headers={"Authorization": f"Bearer {TOKEN_API}"},
-            ).json()
-        )
+            )
+
+            if club_data.status_code != 200:
+                await interaction.followup.send(
+                    embed=discord.Embed(
+                        title="No existe",
+                        description=f"El club con tag {tag} no existe",
+                        color=discord.Color.dark_red(),
+                    )
+                )
+
+            club = Club.from_dict(club_data.json())
+        else:
+            club = Club.from_dict(
+                requests.get(
+                    ROYALE_URL + "clubs/%232JUCPV8PR",
+                    headers={"Authorization": f"Bearer {TOKEN_API}"},
+                ).json()
+            )
 
         info = discord.Embed(
             title=club.name,
