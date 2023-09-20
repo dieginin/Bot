@@ -560,7 +560,7 @@ class ClubCmds(commands.Cog):
         ],
     )
     @in_club()
-    async def perfil(
+    async def tag(
         self,
         interaction: discord.Interaction,
         grupo_1: Optional[app_commands.Choice[str]],
