@@ -10,7 +10,7 @@ from discord.ext import commands
 
 from config import ROYALE_URL, TOKEN_API
 from decorators.in_club import in_club
-from functions.get_member_info import get_member_info
+from functions.get_member_info import get_member_tag
 from functions.rate import rate
 from models.BattleLog import BattleLog
 from models.Brawler import Brawler
@@ -28,10 +28,10 @@ class Buscar(commands.Cog):
     @app_commands.command(description="Valora el perfil de otra persona")
     @app_commands.describe(tag="Intresa el tag")
     @in_club()
-    async def valorar(self, interaction: discord.Interaction, tag: str = ''):
-        await interaction.response.defer()
-        if tag == '': tag, _ = await get_member_info(interaction.user.nick)  # type: ignore
-        
+    async def valorar(self, interaction: discord.Interaction, tag: str = ""):
+        if tag == "":
+            tag = get_member_tag(interaction.user.nick)  # type: ignore
+
         if tag[0] != "#":
             tag = "#" + tag
         pd_data = requests.get(
