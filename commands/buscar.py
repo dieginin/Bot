@@ -25,17 +25,13 @@ class Buscar(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(description="Valora tu perfil o el de otra persona")
+    @app_commands.command(description="Valora el perfil de otra persona")
     @app_commands.describe(tag="Intresa el tag")
     @in_club()
-    async def valorar(
-        self, interaction: discord.Interaction, tag: Optional[str] = None
-    ):
-        if not tag:
-            tag, _ = get_member_info(interaction.user.nick)  # type: ignore
-        else:
-            await interaction.response.defer()
-
+    async def valorar(self, interaction: discord.Interaction, tag: str = ''):
+        await interaction.response.defer()
+        if tag == '': tag, _ = await get_member_info(interaction.user.nick)  # type: ignore
+        
         if tag[0] != "#":
             tag = "#" + tag
         pd_data = requests.get(
