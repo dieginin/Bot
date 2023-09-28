@@ -1,13 +1,11 @@
-from typing import Optional
+from datetime import datetime, timezone
 
 import discord
-import requests
 from discord import app_commands
 from discord.ext import commands
 
-from decorators.in_club import in_club
-from models.BrawlDatum import BrawlDatum
-from models.Events import Events
+from connections import BrawlApi, BrawlStars
+from secure import in_club
 
 url = "https://api.brawlapi.com/v1"
 
@@ -18,55 +16,41 @@ class Eventos(commands.Cog):
 
     @app_commands.command(
         name="eventos",
-        description="Ve los brawlers con más indice de victorias de los eventos activos o próximos",
-    )
-    @app_commands.describe(
-        estatus="Seleciona si quieres ver los eventos activos o los próximos eventos"
-    )
-    @app_commands.choices(
-        estatus=[
-            app_commands.Choice(name="Eventos Activos", value="act"),
-            app_commands.Choice(name="Próximos Eventos", value="upc"),
-        ]
+        description="Ve los brawlers con más indice de victorias de los eventos activos",
     )
     @in_club()
     async def eventos(
         self,
         interaction: discord.Interaction,
-        estatus: Optional[app_commands.Choice[str]],
     ):
         await interaction.response.defer()
-        if not estatus:
-            estatus = app_commands.Choice(name="Eventos Activos", value="act")
+        bs = BrawlStars()
+        ba = BrawlApi()
 
-        eventsDB = Events.from_dict(requests.get(url + "/events").json())
-        brawlersDB = [
-            BrawlDatum.from_dict(b)
-            for b in requests.get(url + "/brawlers").json()["list"]
-        ]
-
-        foco = eventsDB.active if estatus.value == "act" else eventsDB.upcoming
+        events = bs.get_events()
         embeds = []
 
-        for event in foco:
+        for event in events:
+            try:
+                edata = ba.get_map(str(event.event.id))
+            except:
+                continue
+
+            dif = event.end_time - datetime.utcnow().replace(tzinfo=timezone.utc)
+            horas = dif.days * 24 + dif.seconds // 3600
+            minutos = (dif.seconds % 3600) // 60
             embed = discord.Embed(
-                title=event.map.name,
-                description=event.map.environment.name,
-                color=discord.Color.from_str(event.map.game_mode.bg_color),
+                title=event.event.map,
+                description=f"Faltan {horas} horas y {minutos} minutos",
+                color=discord.Color.from_str(edata.game_mode.bg_color),
             )
             embed.set_author(
-                name=event.map.game_mode.name,
-                icon_url=event.map.game_mode.image_url,
-                url=event.map.link,
+                name=event.event.mode,
+                icon_url=edata.game_mode.image_url,
+                url=edata.link,
             )
-            embed.set_image(url=event.map.environment.image_url)
-            embed.set_thumbnail(url=event.map.image_url)
-
-            for br in event.map.stats[:6]:
-                brawler = next(
-                    (member for member in brawlersDB if member.id == br.brawler)
-                )
-                embed.add_field(name=brawler.name, value=f"{br.win_rate}%")
+            embed.set_image(url=edata.environment.image_url)
+            embed.set_thumbnail(url=edata.image_url)
 
             embeds.append(embed)
 

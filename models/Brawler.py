@@ -1,37 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Optional
 
-T = TypeVar("T")
-
-
-def from_int(x: Any) -> int:
-    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
-
-
-def from_str(x: Any) -> str:
-    assert isinstance(x, str)
-    return x
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
-
-
-def from_none(x: Any) -> Any:
-    assert x is None
-    return x
-
-
-def from_union(fs, x):
-    for f in fs:
-        try:
-            return f(x)
-        except:
-            pass
-    assert False
+from helpers import from_int, from_list, from_none, from_str, from_union
 
 
 @dataclass
@@ -87,13 +58,13 @@ class Gear:
 class Brawler:
     id: int
     name: str
-    star_powers: Optional[List[Gadget]] = None
-    gadgets: Optional[List[Gadget]] = None
+    star_powers: Optional[list[Gadget]] = None
+    gadgets: Optional[list[Gadget]] = None
     power: Optional[int] = None
     trophies: Optional[int] = None
     rank: Optional[int] = None
     highest_trophies: Optional[int] = None
-    gears: Optional[List[Gear]] = None
+    gears: Optional[list[Gear]] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Brawler":
