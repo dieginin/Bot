@@ -1,39 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Optional
 
+from helpers import from_int, from_list, from_none, from_str, from_union
 from models.Brawler import Brawler
-
-T = TypeVar("T")
-
-
-def from_int(x: Any) -> int:
-    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
-
-
-def from_str(x: Any) -> str:
-    assert isinstance(x, str)
-    return x
-
-
-def from_none(x: Any) -> Any:
-    assert x is None
-    return x
-
-
-def from_union(fs, x):
-    for f in fs:
-        try:
-            return f(x)
-        except:
-            pass
-    assert False
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
 
 
 @dataclass
@@ -101,11 +71,11 @@ class Battle:
     type: TypeEnum
     rank: Optional[int] = None
     trophy_change: Optional[int] = None
-    teams: Optional[List[List[StarPlayer]]] = None
+    teams: Optional[list[list[StarPlayer]]] = None
     result: Optional[Result] = None
     duration: Optional[int] = None
     star_player: Optional[StarPlayer] = None
-    players: Optional[List[StarPlayer]] = None
+    players: Optional[list[StarPlayer]] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Battle":

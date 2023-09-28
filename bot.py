@@ -3,8 +3,8 @@ from colorama import Fore
 from discord.ext import commands
 
 from config import TOKEN_BOT
-from errors.errors import on_error
-from functions.cog_loader import cog_loader
+from errors import on_error
+from functions import cog_loader
 
 # Creación del bot
 bot = commands.Bot(command_prefix="$", intents=discord.Intents.all())

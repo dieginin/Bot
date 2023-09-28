@@ -1,4 +1,4 @@
-def human_format(num):
+def km_format(num):
     magnitude = 0
     while abs(num) >= 1000:
         magnitude += 1

@@ -1,9 +1,8 @@
 import discord
-import requests
 from discord import app_commands
 from discord.ext import commands
 
-from config import ROYALE_URL, TOKEN_API
+from connections import BrawlStars
 from views.MembersView import MembersView
 
 
@@ -25,15 +24,14 @@ class Settings(commands.Cog):
     async def vincular(
         self, interaction: discord.Interaction, grupo: app_commands.Choice[int]
     ):
-        members_data = requests.get(
-            ROYALE_URL + "clubs/%232JUCPV8PR",
-            headers={"Authorization": f"Bearer {TOKEN_API}"},
-        ).json()["members"]
+        bs = BrawlStars()
+
+        members_data = bs.get_club_members("#2JUCPV8PR")
 
         if grupo.value == 0:
-            grupo_1 = "\n".join([f"{members_data[i]['name']:20}" for i in range(15)])
+            grupo_1 = "\n".join([f"{members_data[i].name:20}" for i in range(15)])
             grupo_2 = "\n".join(
-                [f"{members_data[i]['name']:20}" for i in range(15, len(members_data))]
+                [f"{members_data[i].name:20}" for i in range(15, len(members_data))]
             )
 
             embed = discord.Embed(color=discord.Color.random())

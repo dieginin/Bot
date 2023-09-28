@@ -1,24 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, List, TypeVar
+from typing import Any
 
-T = TypeVar("T")
-EnumT = TypeVar("EnumT", bound=Enum)
-
-
-def from_int(x: Any) -> int:
-    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
-
-
-def from_str(x: Any) -> str:
-    assert isinstance(x, str)
-    return x
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
+from helpers import from_int, from_list, from_str
 
 
 @dataclass
@@ -74,9 +58,27 @@ class Club:
     badge_id: int
     required_trophies: int
     trophies: int
-    members: List[Member]
-    members_count: int = 0
-    president: Member | None = None
+    members: list[Member]
+
+    @property
+    def member_count(self):
+        return len(self.members)
+
+    @property
+    def president(self):
+        return next(
+            (member for member in self.members if member.role == Role.Presidente)
+        )
+
+    @property
+    def vice_presidents(self):
+        return [
+            member for member in self.members if member.role == Role.Vice_Presidente
+        ]
+
+    @property
+    def veterans(self):
+        return [member for member in self.members if member.role == Role.Veterano]
 
     @staticmethod
     def from_dict(obj: Any) -> "Club":
@@ -89,12 +91,6 @@ class Club:
         required_trophies = from_int(obj.get("requiredTrophies"))
         trophies = from_int(obj.get("trophies"))
         members = from_list(Member.from_dict, obj.get("members"))
-        members_count = from_int(len(members))
-        president = from_member(
-            next(
-                (member for member in members if member.role == Role.Presidente), Member
-            )
-        )
         return Club(
             tag,
             name,
@@ -104,6 +100,4 @@ class Club:
             required_trophies,
             trophies,
             members,
-            members_count,
-            president,
         )
